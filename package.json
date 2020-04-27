@@ -1,15 +1,15 @@
 {
-  "name": "is-angular8-d3-graph-example2",
-  "version": "0.0.1",
+  "name": "is-angular8-d3-graph-example",
+  "version": "0.2.4",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mkobar/is-angular8-d3-graph-example2.git"
+    "url": "https://github.com/mkobar/is-angular8-d3-graph-example.git"
   },
   "angular-cli": {},
   "scripts": {
     "build": "ng build --prod",
-    "deploy": "ng build --prod --base-href /is-angular8-d3-graph-example2/ && npx ngh --dir=dist/ --no-silent",
+    "deploy": "ng build --prod --base-href /is-angular8-d3-graph-example/ && npx ngh --dir=dist/ --no-silent",
     "ng": "ng",
     "start": "ng serve",
     "lint": "ng lint"
