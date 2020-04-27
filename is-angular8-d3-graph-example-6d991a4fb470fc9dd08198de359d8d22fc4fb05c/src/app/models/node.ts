@@ -14,7 +14,6 @@ export class Node implements d3.SimulationNodeDatum {
   name: string;
   id: string;
   linkCount: number = 0;
-  data: any;
 
   SPECTRUM: [
     // "rgb(222,237,250)"

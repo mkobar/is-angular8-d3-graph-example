@@ -1,4 +1,4 @@
-// V2.3 from https://stackoverflow.com/questions/47256258/collapsible-trees-in-typescript-and-d3-version-v3
+// V2.2 from https://stackoverflow.com/questions/47256258/collapsible-trees-in-typescript-and-d3-version-v3
 
 import { Component, Inject, OnInit } from '@angular/core';
  import { Http } from '@angular/http';
@@ -20,82 +20,36 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { Node, Link, MapTree } from '../../models'
 import { MapTreeService } from '../../service/map-tree.service'
  
-interface HierarchyDatum {
+ interface HierarchyDatum {
      name: string;
      value: number;
-     r: number; // radius
-     q: string; // query string
-     results: boolean; // does it have results?
-     flag: boolean; // does it contain any flagged results
      children?: Array<HierarchyDatum>;
-}
-@Component({
-    selector: "app-mapper",
-    templateUrl: "mapper2.component.html",
-    styleUrls: ["mapper2.component.css"],
-    //providers: [],
-    //encapsulation: ViewEncapsulation.None,
-})
-export class Mapper2Component implements OnInit {
-     private margin: any = { top: 10, right: 120, bottom: 10, left: 120 };
-     private width: number;
-     private height: number;
-     private root: HierarchyPointNode<HierarchyDatum>;
-     private tree: TreeLayout<HierarchyDatum>;
-     private svg: any;
-     private diagonal: any;
-     private g: any;
-    title = 'D3 tree with Angular 8 v2.4';
-
-  data: HierarchyDatum = {
+ }
+ const data: HierarchyDatum = {
      name: "A1",
      value: 100,
-     r: 40,
-     q: 'cars', // root
-     results: true,
-     flag: true,
      children: [
          {
              name: "B1",
              value: 100,
-	     r: 20,
-	     q: 'old cars',
-	     results: true,
-             flag: true,
              children: [
                  {
                      name: "C1",
-		     value: 100,
-		     r: 20,
-		     q: 'old used cars',
-	             results: false,
-                     flag: false,
+                     value: 100,
                      children: undefined 
                  },
                  {
                      name: "C2",
                      value: 300,
-		     r: 20,
-		     q: 'old used trucks',
-	             results: false,
-                     flag: false,
                      children: [
                          {
                              name: "D1",
                              value: 100,
-			     r: 20,
-			     q: 'old trucks',
-	                     results: false,
-                             flag: false,
                              children: undefined
                          },
                          {
                              name: "D2",
                              value: 300,
-			     r: 20,
-			     q: 'new trucks',
-	                     results: false,
-                             flag: false,
                              children: undefined
                          }
                      ] 
@@ -103,10 +57,6 @@ export class Mapper2Component implements OnInit {
                  {
                      name: "C3",
                      value: 200,
-		     r: 20,
-		     q: 'vintage cars',
-	             results: false,
-                     flag: false,
                      children: undefined 
                  }
              ]
@@ -114,53 +64,29 @@ export class Mapper2Component implements OnInit {
          {
              name: "B2",
              value: 200,
-	     r: 20,
-	     q: 'cars for sale',
-	     results: false,
-             flag: false,
              children: [
                  {
                      name: "C4",
                      value: 100,
-		     r: 20,
-		     q: 'old cars for sale',
-		     results: false,
-		     flag: false,
                      children: undefined 
                  },
                  {
                      name: "C5",
                      value: 300,
-		     r: 20,
-		     q: 'used cars for sale',
-		     results: false,
-		     flag: false,
                      children: undefined 
                  },
                  {
                      name: "C6",
                      value: 200,
-		     r: 20,
-		     q: 'new cars for sale',
-		     results: false,
-		     flag: false,
                      children: [
                          {
                              name: "D3",
                              value: 100,
-			     r: 20,
-			     q: 'cars for rent',
-			     results: false,
-		             flag: false,
                              children: undefined
                          },
                          {
                              name: "D4",
                              value: 300,
-			     r: 20,
-			     q: 'cars for lease',
-			     results: false,
-		             flag: false,
                              children: undefined
                          }
                      ]  
@@ -169,6 +95,22 @@ export class Mapper2Component implements OnInit {
          }
      ]
  };
+@Component({
+    selector: "app-mapper",
+    templateUrl: "mapper2.component.html",
+    styleUrls: ["mapper2.component.css"],
+    //providers: [],
+    //encapsulation: ViewEncapsulation.None,
+})
+export class Mapper2Component implements OnInit {
+     private margin: any = { top: 20, right: 120, bottom: 20, left: 120 };
+     private width: number;
+     private height: number;
+     private root: HierarchyPointNode<HierarchyDatum>;
+     private tree: TreeLayout<HierarchyDatum>;
+     private svg: any;
+     private diagonal: any;
+    title = 'D3 tree with Angular 8 v2.2';
 
      constructor() {
      //this.width = 450 - this.margin.left - this.margin.right;
@@ -176,193 +118,63 @@ export class Mapper2Component implements OnInit {
      }
 
      ngOnInit() {
-       /***
-       this.mapTreeService.$data.subscribe(data => {
-         this.data = data;
+     /***
+    this.mapTreeService.$data.subscribe(data => {
+       this.data = data;
        });
        ***/
-
-       this.initSvg();
-       this.initTree();
-       this.drawTree(this.root);
-     }
-
-     initSvg() {
          this.width = 720 - this.margin.right - this.margin.left;
-	 this.height = 640 - this.margin.top - this.margin.bottom;
-
+         this.height = 640 - this.margin.top - this.margin.bottom;
 	 //this.svg = d3.select('.container').append("svg")
 	 this.svg = d3.select('#tree').append('svg')
              .attr("width", this.width + this.margin.right + this.margin.left)
              .attr("height", this.height + this.margin.top + this.margin.bottom)
-         //.attr('viewBox', '0 0 900 500');
-         //.attr('viewBox', '0 0 '+this.width+' '+this.height);
+      //.attr('viewBox', '0 0 900 500');
+      //.attr('viewBox', '0 0 '+this.width+' '+this.height);
              .append("g")
              .attr("class", "g")
              //.attr("transform", "translate(5,5)");
 	     //this.g = this.svg.append('g')
-	     .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
-
+             .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
          d3.select('svg g.g')
              .append("g")
              .attr("class", "links");
          d3.select('svg g.g')
              .append("g")
-	     .attr("class", "nodes");
-     } // initSvg
-
-    initTree() {
-         console.log("flare inside", this.data);
-	 this.tree = tree<HierarchyDatum>();
-
-         console.log(this.tree)
+             .attr("class", "nodes");
+         console.log("flare inside", data);
+         this.tree = tree<HierarchyDatum>();
          this.tree.size([this.height, this.width]);
-	 this.root = this.tree(hierarchy<HierarchyDatum>(this.data));
-         console.log(this.root)
-     } // initTree
+         this.root = this.tree(hierarchy<HierarchyDatum>(data));
+         this.draw(this.root);
+     }
 
-     private drawTree(root1: HierarchyPointNode<HierarchyDatum>) {
-
-         console.log("root1 = ",root1)
-         console.log("root1.decendants() = ",root1.descendants())
-	 console.log("root1.links() = ",root1.links())
-
-	 let activeQuery: any = null;
-         let lastActive: any = null;
-	 // render loop here
-	 const render = (selection, { root1 }) => {
-
-           // active Node
-           const gNodes = d3.select('svg g.nodes')
+     private draw(root: HierarchyPointNode<HierarchyDatum>) {
+         // Nodes
+         d3.select('svg g.nodes')
              .selectAll('circle.node')
-	     .data(root1.descendants())
-
-           console.log("root1.decendants() = ",root1.descendants())
-
-	   // ENTER
-	   const gEnter = gNodes.enter()
-	     .append('g')
-
-	   gEnter.append('circle')
-	     //.attr('style', "fill: #6542a4;stroke: #ccc;stroke-width: 3px;")
-	     .attr('style', function (d) {
-	   if (d && d !== {}) { // because some are empty!!
-	       console.log("style d=",d)
-	         if ((<Node>d).data.results === true) {
-	         //compiles but wrong //if (d.results === true) {
-	           return "fill: #6542a4;stroke: #ccc;stroke-width: 3px;";
-	         } else {
-	           return "fill: #ccc;stroke: #ccc;stroke-width: 3px;";
-                 }
-           }
-	     })
-	     .attr('cx', function (d) { return (<Node>d).x; })
-		     .attr('cy', function (d) { return (<Node>d).y; })
-	     //.attr('r', 20)
-	     //.merge(gNodes)
-	     //.attr('r', function (d) { return d.data.r} )
-	     .attr('r', function (d) {
-	       console.log("d.data.r=",(<Node>d).data.r);
-	       return (<Node>d).data.r} )
-	     /***
-	     .attr('r', function (d,i) {
-	     if (i === activeQuery) {
-	        console.log("i=",i);
-		console.log("activeQuery=", activeQuery);
-	        return 40;
-		//} else {
-		}
-	     if (i === lastActive) {
-	        console.log("i2=",i);
-	        return 20;
-		}
-		})
-		***/
-	     //.on("click", this.clickOn.bind(this));
-	     .on("click", clickOn.bind(this));
-
-	     /***
-	     this.g.append('text') // center
-	     .attr('class', 'name')
-             .attr('x', function (d) { return d.x; })
-             .attr('y', function (d) { return d.y; })
-             .attr('font-size', '22px')
-             .attr('text-anchor', 'middle')
-             .text(d => d.data.name)
-	     //.text(function(d) { return d.name })
-	     ***/
-
-	     gEnter.append('text') // center
-	     .attr('class', 'query')
-	     .attr('x', function (d) { return (<Node>d).x; })
-	     //.attr('y', function (d) { return d.y-20; })
-	     //.attr('y', function (d) { return d.y + ( -d.data.r -20); })
-	     .attr('y', function (d) { return (<Node>d).y + -40; })
-             .attr('font-size', '22px')
-             .attr('text-anchor', 'middle')
-	     .text(d => (<Node>d).data.q)
-
-	     // UPDATE
-	     //var gUpdate = gEnter.merge(gNodes);
-	     /***
-	     const gUpdate = gNodes
-	     .attr('r', function (d) { return d.data.r} )
-	     **/
-	     /***
-     	     .attr('r', function (d,i) {
-             if (i === activeQuery) {
-	        console.log("i3=",i);
-		console.log("activeQuery3=", activeQuery);
-	        return 40;
-	      } else {
-	        console.log("i4=",i);
-	        return 20;
-		}})
-		***/
-
-	      //const gExit = this.g.exit().transition().remove()
-
-      // Links
-           d3.select('svg g.links')
+             .data(root.descendants())
+             .enter()
+             .append('circle')
+             .classed('node', true)
+             .attr('style', "fill: steelblue;stroke: #ccc;stroke-width: 3px;")
+             .attr('cx', function (d) { return d.x; })
+             .attr('cy', function (d) { return d.y; })
+             .attr('r', 10);
+         // Links
+         d3.select('svg g.links')
              .selectAll('line.link')
-             .data(root1.links())
+             .data(root.links())
              .enter()
              .append('line')
              .classed('link', true)
              .attr('style', "stroke: #ccc;stroke-width: 3px;")
-	     .attr('x1', function (d) { return (<Link>d).source.x; })
-	     .attr('y1', function (d) { return (<Link>d).source.y; })
-	     .attr('x2', function (d) { return (<Link>d).target.x; })
-	     .attr('y2', function (d) { return (<Link>d).target.y; });
-	 } // eo render
+             .attr('x1', function (d) { return d.source.x; })
+             .attr('y1', function (d) { return d.source.y; })
+             .attr('x2', function (d) { return d.target.x; })
+             .attr('y2', function (d) { return d.target.y; });
+     }
 
-	 const clickOn = (d, i, n) => {
-	   d.data.r = 40
-	   console.log("clicked =",d.data.name)
-	   console.log("d=",d)
-	   console.log("i=",i)
-	   console.log("n=",n)
-	   lastActive = activeQuery;
-	   activeQuery = d;
-	   d.data.results = true
-	   //root1.descendants()[i].Node.data.r = 20;
-	   //root1.descendants()[lastActive].data.r = 20;
-	   if (lastActive != null) {
-	       lastActive.data.r = 20;
-	       console.log("old-clicked =",lastActive.data.name)
-	   }
-	   //console.log("old-clicked =",root1.descendants()[lastActive].data.name)
-           console.log("root1.decendants() = ",root1.descendants())
-           console.log("root1 = ",root1)
-	   //render(this.svg, {this.root});
-	   render(this.svg, {root1});
-           //this.drawTree(this.root);
-           //this.update(d);
-	} // clickOn
-
-	render(this.svg, {root1}); // first time
-
-     } // draw tree
 
 /*** OLD STUFF =============================================
  update(source) {

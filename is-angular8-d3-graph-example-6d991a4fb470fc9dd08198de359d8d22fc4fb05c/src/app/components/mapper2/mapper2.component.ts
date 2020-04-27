@@ -26,7 +26,6 @@ interface HierarchyDatum {
      r: number; // radius
      q: string; // query string
      results: boolean; // does it have results?
-     flag: boolean; // does it contain any flagged results
      children?: Array<HierarchyDatum>;
 }
 @Component({
@@ -53,7 +52,6 @@ export class Mapper2Component implements OnInit {
      r: 40,
      q: 'cars', // root
      results: true,
-     flag: true,
      children: [
          {
              name: "B1",
@@ -61,7 +59,6 @@ export class Mapper2Component implements OnInit {
 	     r: 20,
 	     q: 'old cars',
 	     results: true,
-             flag: true,
              children: [
                  {
                      name: "C1",
@@ -69,7 +66,6 @@ export class Mapper2Component implements OnInit {
 		     r: 20,
 		     q: 'old used cars',
 	             results: false,
-                     flag: false,
                      children: undefined 
                  },
                  {
@@ -78,7 +74,6 @@ export class Mapper2Component implements OnInit {
 		     r: 20,
 		     q: 'old used trucks',
 	             results: false,
-                     flag: false,
                      children: [
                          {
                              name: "D1",
@@ -86,7 +81,6 @@ export class Mapper2Component implements OnInit {
 			     r: 20,
 			     q: 'old trucks',
 	                     results: false,
-                             flag: false,
                              children: undefined
                          },
                          {
@@ -95,7 +89,6 @@ export class Mapper2Component implements OnInit {
 			     r: 20,
 			     q: 'new trucks',
 	                     results: false,
-                             flag: false,
                              children: undefined
                          }
                      ] 
@@ -106,7 +99,6 @@ export class Mapper2Component implements OnInit {
 		     r: 20,
 		     q: 'vintage cars',
 	             results: false,
-                     flag: false,
                      children: undefined 
                  }
              ]
@@ -117,7 +109,6 @@ export class Mapper2Component implements OnInit {
 	     r: 20,
 	     q: 'cars for sale',
 	     results: false,
-             flag: false,
              children: [
                  {
                      name: "C4",
@@ -125,7 +116,6 @@ export class Mapper2Component implements OnInit {
 		     r: 20,
 		     q: 'old cars for sale',
 		     results: false,
-		     flag: false,
                      children: undefined 
                  },
                  {
@@ -134,7 +124,6 @@ export class Mapper2Component implements OnInit {
 		     r: 20,
 		     q: 'used cars for sale',
 		     results: false,
-		     flag: false,
                      children: undefined 
                  },
                  {
@@ -143,7 +132,6 @@ export class Mapper2Component implements OnInit {
 		     r: 20,
 		     q: 'new cars for sale',
 		     results: false,
-		     flag: false,
                      children: [
                          {
                              name: "D3",
@@ -151,7 +139,6 @@ export class Mapper2Component implements OnInit {
 			     r: 20,
 			     q: 'cars for rent',
 			     results: false,
-		             flag: false,
                              children: undefined
                          },
                          {
@@ -160,7 +147,6 @@ export class Mapper2Component implements OnInit {
 			     r: 20,
 			     q: 'cars for lease',
 			     results: false,
-		             flag: false,
                              children: undefined
                          }
                      ]  
@@ -246,24 +232,24 @@ export class Mapper2Component implements OnInit {
 	   gEnter.append('circle')
 	     //.attr('style', "fill: #6542a4;stroke: #ccc;stroke-width: 3px;")
 	     .attr('style', function (d) {
-	   if (d && d !== {}) { // because some are empty!!
-	       console.log("style d=",d)
-	         if ((<Node>d).data.results === true) {
-	         //compiles but wrong //if (d.results === true) {
-	           return "fill: #6542a4;stroke: #ccc;stroke-width: 3px;";
-	         } else {
-	           return "fill: #ccc;stroke: #ccc;stroke-width: 3px;";
-                 }
-           }
-	     })
-	     .attr('cx', function (d) { return (<Node>d).x; })
-		     .attr('cy', function (d) { return (<Node>d).y; })
+	     console.log("style d=",d)
+	     if (d && d !== {}) { // because some are empty!!
+	     if ((<Node>d).data.results === true) {
+	     //compiles but wrong //if (d.results === true) {
+	         return "fill: #6542a4;stroke: #ccc;stroke-width: 3px;";
+	       } else {
+	         return "fill: #ccc;stroke: #ccc;stroke-width: 3px;";
+		 }
+		 }
+	       })
+             .attr('cx', function (d) { return d.x; })
+             .attr('cy', function (d) { return d.y; })
 	     //.attr('r', 20)
-	     //.merge(gNodes)
+	     .merge(gNodes)
 	     //.attr('r', function (d) { return d.data.r} )
 	     .attr('r', function (d) {
-	       console.log("d.data.r=",(<Node>d).data.r);
-	       return (<Node>d).data.r} )
+	       console.log("d.data.r=",d.data.r);
+	       return d.data.r} )
 	     /***
 	     .attr('r', function (d,i) {
 	     if (i === activeQuery) {
@@ -294,13 +280,12 @@ export class Mapper2Component implements OnInit {
 
 	     gEnter.append('text') // center
 	     .attr('class', 'query')
-	     .attr('x', function (d) { return (<Node>d).x; })
+             .attr('x', function (d) { return d.x; })
 	     //.attr('y', function (d) { return d.y-20; })
-	     //.attr('y', function (d) { return d.y + ( -d.data.r -20); })
-	     .attr('y', function (d) { return (<Node>d).y + -40; })
+	     .attr('y', function (d) { return d.y + ( -d.data.r -20); })
              .attr('font-size', '22px')
              .attr('text-anchor', 'middle')
-	     .text(d => (<Node>d).data.q)
+	     .text(d => d.data.q)
 
 	     // UPDATE
 	     //var gUpdate = gEnter.merge(gNodes);
@@ -330,10 +315,10 @@ export class Mapper2Component implements OnInit {
              .append('line')
              .classed('link', true)
              .attr('style', "stroke: #ccc;stroke-width: 3px;")
-	     .attr('x1', function (d) { return (<Link>d).source.x; })
-	     .attr('y1', function (d) { return (<Link>d).source.y; })
-	     .attr('x2', function (d) { return (<Link>d).target.x; })
-	     .attr('y2', function (d) { return (<Link>d).target.y; });
+	     .attr('x1', function (d) { return d.source.x; })
+	     .attr('y1', function (d) { return d.source.y; })
+	     .attr('x2', function (d) { return d.target.x; })
+	     .attr('y2', function (d) { return d.target.y; });
 	 } // eo render
 
 	 const clickOn = (d, i, n) => {
